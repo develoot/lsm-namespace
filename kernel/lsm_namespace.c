@@ -1,6 +1,8 @@
 #include <linux/capability.h>
 #include <linux/err.h>
+#include <linux/lsm_hooks.h>
 #include <linux/lsm_namespace.h>
+#include <linux/proc_ns.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/user_namespace.h>
