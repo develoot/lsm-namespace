@@ -5,7 +5,46 @@
 #include <linux/slab.h>
 #include <linux/user_namespace.h>
 
-static struct kmem_cache *lsm_ns_cachep;
+static struct ns_common *lsmns_get(struct task_struct *task)
+{
+	struct ns_common *ns = NULL;
+	struct nsproxy *nsproxy;
+
+	task_lock(task);
+	nsproxy = task->nsproxy;
+	if(nsproxy) {
+		ns = &nsproxy->lsm_ns->ns;
+		get_lsm_ns(to_lsm_ns(ns));
+	}
+	task_unlock(task);
+
+	return ns;
+}
+
+static void lsmns_put(struct ns_common *ns)
+{
+	put_lsm_ns(to_lsm_ns(ns));
+}
+
+static int lsmns_install(struct nsproxy *nsproxy, struct ns_common *new)
+{
+	struct lsm_namespace *ns = to_lsm_ns(new);
+
+	if (!ns_capable(ns->user_ns, CAP_SYS_ADMIN) ||
+			!ns_capable(current_user_ns(), CAP_SYS_ADMIN))
+		return -EPERM;
+
+	get_lsm_ns(ns);
+	put_lsm_ns(nsproxy->lsm_ns);
+	nsproxy->lsm_ns = ns;
+
+	return 0;
+}
+
+static struct user_namespace *lsmns_owner(struct ns_common *ns)
+{
+	return to_lsm_ns(ns)->user_ns;
+}
 
 const struct proc_ns_operations lsmns_operations = {
         .name = "lsm",
@@ -32,6 +71,8 @@ static void dec_lsm_namespaces(struct ucounts *ucounts)
 {
 	dec_ucount(ucounts, UCOUNT_LSM_NAMESPACES);
 }
+
+static struct kmem_cache *lsm_ns_cachep;
 
 static struct lsm_namespace *alloc_lsm_ns(struct user_namespace *user_ns)
 {
@@ -71,64 +112,24 @@ fail:
 
 void free_lsm_ns(struct kref *kref)
 {
-        struct lsm_namespace *ns;
+        struct lsm_namespace *ns
+		= container_of(kref, struct lsm_namespace, kref);
 
-	ns = container_of(kref, struct lsm_namespace, kref);
         dec_lsm_namespaces(ns->ucounts);
         put_user_ns(ns->user_ns);
         ns_free_inum(&ns->ns);
         kmem_cache_free(lsm_ns_cachep, ns);
+
         //need to free hooking functions
 }
 
 struct lsm_namespace *copy_lsm_ns(unsigned long flags,
 		struct user_namespace *user_ns, struct lsm_namespace *old_ns)
 {
-	if (!(flags & CLONE_NEWLSM)) {
+	if (!(flags & CLONE_NEWLSM))
 		return get_lsm_ns(old_ns);
-	}
+
 	return alloc_lsm_ns(user_ns);
-}
-
-static struct ns_common *lsmns_get(struct task_struct *task)
-{
-        struct ns_common *ns = NULL;
-        struct nsproxy *nsproxy;
-
-        task_lock(task);
-	nsproxy = task->nsproxy;
-	if(nsproxy) {
-                ns = &nsproxy->lsm_ns->ns;
-                get_lsm_ns(to_lsm_ns(ns));
-        }
-        task_unlock(task);
-
-        return ns;
-}
-
-static void lsmns_put(struct ns_common *ns)
-{
-        put_lsm_ns(to_lsm_ns(ns));
-}
-
-static int lsmns_install(struct nsproxy *nsproxy, struct ns_common *new)
-{
-        struct lsm_namespace *ns = to_lsm_ns(new);
-
-        if (!ns_capable(ns->user_ns, CAP_SYS_ADMIN) ||
-           !ns_capable(current_user_ns(), CAP_SYS_ADMIN))
-                return -EPERM;
-
-        get_lsm_ns(ns);
-	put_lsm_ns(nsproxy->lsm_ns);
-        nsproxy->lsm_ns = ns;
-
-        return 0;
-}
-
-static struct user_namespace *lsmns_owner(struct ns_common *ns)
-{
-        return to_lsm_ns(ns)->user_ns;
 }
 
 static __init int lsm_namespaces_init(void)
