@@ -358,7 +358,7 @@ void __init lsmns_init(void)
 	LSMNS_PTR_INIT(sctp_assoc_request);
 	LSMNS_PTR_INIT(sctp_bind_connect);
 	LSMNS_PTR_INIT(sctp_sk_clone);
-/* CONFIG_SECURITY_NETWORK */
+#endif /* CONFIG_SECURITY_NETWORK */
 #ifdef CONFIG_SECURITY_INFINIBAND
 	LSMNS_PTR_INIT(ib_pkey_access);
 	LSMNS_PTR_INIT(ib_endport_manage_subnet);
