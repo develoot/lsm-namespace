@@ -108,8 +108,16 @@ static struct nsproxy *create_new_namespaces(unsigned long flags,
 		goto out_net;
 	}
 
+	new_nsp->lsm_ns = copy_lsm_ns(flags, user_ns, tsk->nsproxy->lsm_ns);
+	if (IS_ERR(new_nsp->lsm_ns)) {
+		err = PTR_ERR(new_nsp->lsm_ns);
+		goto out_lsm;
+	}
+
 	return new_nsp;
 
+out_lsm:
+	put_net(new_nsp->net_ns);
 out_net:
 	put_cgroup_ns(new_nsp->cgroup_ns);
 out_cgroup:
