@@ -143,7 +143,7 @@ extern struct security_hook_heads security_hook_heads;
 
 #define LSMNS_PTR_INIT(FUNC)						       \
 	do {								       \
-		struct hlist_node *first = security_hook_heads.FUNC->first;    \
+		struct hlist_node *first = security_hook_heads.FUNC.first;     \
 		struct hlist_node *pos;					       \
 									       \
 		init_lsm_ns.start.FUNC = first;				       \
