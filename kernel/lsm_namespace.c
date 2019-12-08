@@ -82,6 +82,9 @@ static struct lsm_namespace *alloc_lsm_ns(struct user_namespace *user_ns)
 	struct ucounts *ucounts;
 	int err;
 
+	/* DEBUG */
+	print_debugfs("alloc_lsm_ns");
+
 	err = -ENOMEM;
 	new_ns = kmem_cache_zalloc(lsm_ns_cachep, GFP_KERNEL);
 	if (new_ns == NULL)

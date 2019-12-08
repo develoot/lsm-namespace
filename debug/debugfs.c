@@ -1,6 +1,6 @@
 #include <debug/debugfs.h>
 
-#define MAX_BUFF_SIZE 1024
+#define MAX_BUFF_SIZE 4096
 
 static struct dentry *root;
 static struct dentry *log;
