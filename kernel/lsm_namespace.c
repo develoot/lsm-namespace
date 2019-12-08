@@ -7,6 +7,8 @@
 #include <linux/slab.h>
 #include <linux/user_namespace.h>
 
+#include <debug/debugfs.h>	/* DEBUG */
+
 static struct ns_common *lsmns_get(struct task_struct *task)
 {
 	struct ns_common *ns = NULL;
