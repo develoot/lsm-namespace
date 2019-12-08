@@ -4,11 +4,10 @@
 #include <linux/string.h>
 #include <linux/slab.h>
 #include <linux/parser.h>
+#include <linux/rwlock.h>
+#include <linux/lsm_namespace.h>
 
 #define LEN 1024
-#define LSM_NS_SELINUX		0x00000001
-#define LSM_NS_APPARMOR		0x00000002
-#define LSM_NS_TOMOYO		0x00000004
 
 static const enum {
 	Lsmns_selinux,
@@ -25,28 +24,37 @@ const match_table_t tokens = {
 };
 
 struct proc_dir_entry *proc_lsm;
-char lsm_buff[LEN];
+static char lsm_buff[LEN];
+static rwlock_t buff_lock;
 
 int parse_lsmns_procfs(void)
 {
 	int types = 0;
 	substring_t args[MAX_OPT_ARGS];
 	int token;
-	int str_len = strlen(lsm_buff);
+	int str_len;
+	char *str;
+	char *p;
+	int i;
+
+
+	read_lock(&buff_lock);
+	str_len = strlen(lsm_buff);
+	read_unlock(&buff_lock);
 	if(str_len == 0)
 		return types;
-	char *str = kmalloc(str_len, GFP_KERNEL);
+	str = kmalloc(str_len, GFP_KERNEL);
+	read_lock(&buff_lock);
 	strlcpy(str, lsm_buff, str_len);
+	read_unlock(&buff_lock);
 
-	int i;
 	for(i = 0; i < str_len; i++){
 		if(str[i] == ' ' || str[i] =='.' || str[i] == '\n' || str[i] == '\r')
 			str[i] = ',';
 	}
 
-	char *tmp = &str[0];
-	char *p;
-        while((p = strsep(&tmp, ",")) != NULL){
+	str = &str[0];
+        while((p = strsep(&str, ",")) != NULL){
                 if (!*p)
                         continue;
                 token = match_token(p, tokens, args);
@@ -68,18 +76,24 @@ int parse_lsmns_procfs(void)
 static ssize_t lsmns_read(struct file* fp, char __user *user_buff,
                size_t count, loff_t *position)
 {
-        printk(KERN_INFO "read_called\n");
-        return simple_read_from_buffer(user_buff, count, position, lsm_buff, LEN);
+	ssize_t size;
+	read_lock(&buff_lock);
+        size = simple_read_from_buffer(user_buff, count, position, lsm_buff, LEN);
+	read_unlock(&buff_lock);
+	return size;
 }
 
 static ssize_t lsmns_write(struct file* fp, const char __user *user_buff,
                 size_t count, loff_t *position)
 {
-        printk(KERN_INFO "write called\n");
-        if(count > LEN)
+	ssize_t size = 0;
+	if(count > LEN)
                 return -EINVAL;
+	write_lock(&buff_lock);
         memset(lsm_buff, 0, LEN);
-        return simple_write_to_buffer(lsm_buff, LEN, position, user_buff, count);
+	size = simple_write_to_buffer(lsm_buff, LEN, position, user_buff, count);
+	write_unlock(&buff_lock);
+	return size;
 }
 
 struct file_operations proc_fops = {
