@@ -38,14 +38,15 @@ int print_debugfs(const char *msg)
 	if (MAX_BUFF_SIZE < cursor + len + 1) {
 		write_lock(&buff_lock);
 		cursor = 0;
+		memset(buff, 0, MAX_BUFF_SIZE);
 		write_unlock(&buff_lock);
 	}
 
 	write_lock(&buff_lock);
 	if (len == strlcpy(buff + cursor, msg, len)) {
 		cursor += len;
+		cursor ++;
 		buff[cursor++] = '\n';
-		buff[cursor++] = '\0';
 		write_unlock(&buff_lock);
 
 		return 1;
