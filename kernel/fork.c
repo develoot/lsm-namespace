@@ -1821,11 +1821,9 @@ static __latent_entropy struct task_struct *copy_process(
 
 	if (clone_flags & CLONE_PIDFD) {
 		/*
-		 * - CLONE_DETACHED is blocked so that we can potentially
-		 *   reuse it later for CLONE_PIDFD.
 		 * - CLONE_THREAD is blocked until someone really needs it.
 		 */
-		if (clone_flags & (CLONE_DETACHED | CLONE_THREAD))
+		if (clone_flags & CLONE_THREAD)
 			return ERR_PTR(-EINVAL);
 	}
 
@@ -2599,10 +2597,9 @@ static bool clone3_args_valid(struct kernel_clone_args *kargs)
 		return false;
 
 	/*
-	 * - make the CLONE_DETACHED bit reuseable for clone3
 	 * - make the CSIGNAL bits reuseable for clone3
 	 */
-	if (kargs->flags & (CLONE_DETACHED | CSIGNAL))
+	if (kargs->flags & CSIGNAL)
 		return false;
 
 	if ((kargs->flags & (CLONE_THREAD | CLONE_PARENT)) &&
