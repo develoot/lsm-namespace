@@ -652,6 +652,8 @@ static void __init lsm_early_task(struct task_struct *task)
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;						\
 		struct hlist_node *start = lsm_ns->start.FUNC;							\
 		struct hlist_node *end = lsm_ns->end.FUNC;							\
+		if(!start)											\
+			break;											\
 		struct security_hook_list *P  = (void*)((char*)start - offsetof(struct security_hook_list, list));\
 														\
 		hlist_for_each_entry_from(P, list){								\
@@ -668,6 +670,8 @@ static void __init lsm_early_task(struct task_struct *task)
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;						\
 		struct hlist_node *start = lsm_ns->start.FUNC;							\
 		struct hlist_node *end = lsm_ns->end.FUNC;							\
+		if(!start) 											\
+			break;											\
 		struct security_hook_list *P = (void*)((char*)start - offsetof(struct security_hook_list, list));\
 														\
 		hlist_for_each_entry_from(P, list) {								\
