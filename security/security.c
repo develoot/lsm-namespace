@@ -646,39 +646,39 @@ static void __init lsm_early_task(struct task_struct *task)
  *	This is a hook that returns a value.
  */
 
-#define call_void_hook(FUNC, ...)					\
-	do {								\
-		struct task_struct *tsk = current;			\
-		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;	\
-		struct hlist_node *start = lsm_ns->start.FUNC;		\
-		struct hlist_node *end = lsm_ns->end.FUNC;		\
+#define call_void_hook(FUNC, ...)										\
+	do {													\
+		struct task_struct *tsk = current;								\
+		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;						\
+		struct hlist_node *start = lsm_ns->start.FUNC;							\
+		struct hlist_node *end = lsm_ns->end.FUNC;							\
 		struct security_hook_list *P  = (char*)start - offsetof(struct security_hook_list, list);	\
-									\
-		hlist_for_each_entry_from(P, list){ \
-			P->hook.FUNC(__VA_ARGS__);			\
-			if(&(P->list) == end)				\
-				break;					\
-		}							\
+														\
+		hlist_for_each_entry_from(P, list){								\
+			P->hook.FUNC(__VA_ARGS__);								\
+			if(&(P->list) == end)									\
+				break;										\
+		}												\
 	} while (0)
 
-#define call_int_hook(FUNC, IRC, ...) ({			\
-	int RC = IRC;						\
-	do {							\
-		struct task_struct *tsk = current;		\
-		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;	\
-		struct hlist_node *start = lsm_ns->start.FUNC;		\
-		struct hlist_hode *end = lsm_ns->end.FUNC;		\
+#define call_int_hook(FUNC, IRC, ...) ({									\
+	int RC = IRC;												\
+	do {													\
+		struct task_struct *tsk = current;								\
+		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;						\
+		struct hlist_node *start = lsm_ns->start.FUNC;							\
+		struct hlist_node *end = lsm_ns->end.FUNC;							\
 		struct security_hook_list *P = (char*)start - offsetof(struct security_hook_list, list);	\
-								\
-		hlist_for_each_entry_from(P, list) { \
-			RC = P->hook.FUNC(__VA_ARGS__);		\
-			if (RC != 0)				\
-				break;				\
-			if (&(P->list) == end)			\
-				break;				\
-		}						\
-	} while (0);						\
-	RC;							\
+														\
+		hlist_for_each_entry_from(P, list) {								\
+			RC = P->hook.FUNC(__VA_ARGS__);								\
+			if (RC != 0)										\
+				break;										\
+			if (&(P->list) == end)									\
+				break;										\
+		}												\
+	} while (0);												\
+	RC;													\
 })
 
 /* Security operations */
