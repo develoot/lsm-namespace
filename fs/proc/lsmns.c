@@ -60,13 +60,13 @@ int parse_lsmns_procfs(void)
                 token = match_token(p, tokens, args);
                 switch (token) {
                 case Lsmns_selinux:
-                        types |= LSM_NS_SELINUX;
+                        types |= LSMNS_SELINUX;
                         break;
                 case Lsmns_apparmor:
-                        types |= LSM_NS_APPARMOR;
+                        types |= LSMNS_APPARMOR;
                         break;
                 case Lsmns_tomoyo:
-                        types |= LSM_NS_TOMOYO;
+                        types |= LSMNS_TOMOYO;
                         break;
                 }
         }
