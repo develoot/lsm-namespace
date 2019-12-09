@@ -41,6 +41,7 @@ struct nsproxy init_nsproxy = {
 #ifdef CONFIG_CGROUPS
 	.cgroup_ns		= &init_cgroup_ns,
 #endif
+	.lsm_ns			= &init_lsm_ns,
 };
 
 static inline struct nsproxy *create_nsproxy(void)
@@ -107,8 +108,16 @@ static struct nsproxy *create_new_namespaces(unsigned long flags,
 		goto out_net;
 	}
 
+	new_nsp->lsm_ns = copy_lsm_ns(flags, user_ns, tsk->nsproxy->lsm_ns);
+	if (IS_ERR(new_nsp->lsm_ns)) {
+		err = PTR_ERR(new_nsp->lsm_ns);
+		goto out_lsm;
+	}
+
 	return new_nsp;
 
+out_lsm:
+	put_net(new_nsp->net_ns);
 out_net:
 	put_cgroup_ns(new_nsp->cgroup_ns);
 out_cgroup:
@@ -140,7 +149,7 @@ int copy_namespaces(unsigned long flags, struct task_struct *tsk)
 
 	if (likely(!(flags & (CLONE_NEWNS | CLONE_NEWUTS | CLONE_NEWIPC |
 			      CLONE_NEWPID | CLONE_NEWNET |
-			      CLONE_NEWCGROUP)))) {
+			      CLONE_NEWCGROUP | CLONE_NEWLSM)))) {
 		get_nsproxy(old_ns);
 		return 0;
 	}

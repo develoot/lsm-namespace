@@ -6,6 +6,7 @@
 #include <linux/ns_common.h>
 #include <linux/nsproxy.h>
 #include <linux/proc_ns.h>
+#include <linux/sched.h>
 #include <linux/sched/task.h>
 #include <linux/user_namespace.h>
 
