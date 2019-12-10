@@ -103,6 +103,7 @@ struct file_operations proc_fops = {
 
 static int __init proc_lsmns_init(void)
 {
+	rwlock_init(&buff_lock);
 	proc_create_data("lsmns", 0664, NULL, &proc_fops, "lsmns");
 	return 0;
 }
