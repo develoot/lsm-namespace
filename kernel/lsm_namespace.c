@@ -72,6 +72,8 @@ static void dec_lsm_namespaces(struct ucounts *ucounts)
 	dec_ucount(ucounts, UCOUNT_LSM_NAMESPACES);
 }
 
+extern int parse_lsmns_procfs(void);
+
 static struct lsm_namespace *alloc_lsm_ns(struct user_namespace *user_ns)
 {
 	struct lsm_namespace *new_ns;
@@ -95,6 +97,7 @@ static struct lsm_namespace *alloc_lsm_ns(struct user_namespace *user_ns)
 	}
 	new_ns->ns.ops = &lsmns_operations;
 	new_ns->user_ns = get_user_ns(user_ns);
+	new_ns->type = parse_lsmns_procfs();
 
 	kref_init(&new_ns->kref);
 
@@ -125,6 +128,38 @@ struct lsm_namespace *copy_lsm_ns(unsigned long flags,
 		return get_lsm_ns(old_ns);
 
 	return alloc_lsm_ns(user_ns);
+}
+
+static int is_enabled(struct lsm_info *lsm)
+{
+	if (!lsm->enabled)
+		return 0;
+	return *lsm->enabled;
+}
+
+void __init lsmns_init(struct lsm_info **ordered_lsms)
+{
+	int type = 0;
+	struct lsm_info **lsm;
+	struct task_struct *tsk = current;
+
+	for (lsm = ordered_lsms; lsm; lsm++) {
+		if (!is_enabled(*lsm))
+			continue;
+
+		if (!strcmp((*lsm)->name, "selinux"))
+			type |= LSMNS_SELINUX;
+		else if (!strcmp((*lsm)->name, "apparmor"))
+			type |= LSMNS_APPARMOR;
+		else if (!strcmp((*lsm)->name, "tomoyo"))
+			type |= LSMNS_TOMOYO;
+		else
+			type |= LSMNS_OTHER;
+	}
+
+	task_lock(tsk);
+	tsk->nsproxy->lsm_ns->type = type;
+	task_unlock(tsk);
 }
 
 static __init int lsm_namespaces_init(void)
