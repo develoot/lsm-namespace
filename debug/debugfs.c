@@ -1,6 +1,6 @@
 #include <debug/debugfs.h>
 
-#define MAX_BUFF_SIZE 1024
+#define MAX_BUFF_SIZE 4096
 
 static struct dentry *root;
 static struct dentry *log;
@@ -31,10 +31,15 @@ static int __init lsmns_debugfs_init(void)
 }
 __initcall(lsmns_debugfs_init);
 
-int print_debugfs(const char *msg)
-{
-	int len = strlen(msg);
 
+int print_debugfs(const char *msg, ...)
+{
+	char tmp[MAX_BUFF_SIZE];
+	va_start(ap, msg);
+	vsnprintf(tmp, MAX_BUFF_SIZE, msg, ap);
+	va_end(ap);
+
+	int len = strlen(tmp);
 	if (MAX_BUFF_SIZE < cursor + len + 1) {
 		write_lock(&buff_lock);
 		cursor = 0;
@@ -43,7 +48,7 @@ int print_debugfs(const char *msg)
 	}
 
 	write_lock(&buff_lock);
-	if (len == strlcpy(buff + cursor, msg, len)) {
+	if (len == strlcpy(buff + cursor, tmp, len)) {
 		cursor += len;
 		cursor ++;
 		buff[cursor++] = '\n';
