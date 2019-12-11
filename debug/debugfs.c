@@ -34,6 +34,7 @@ __initcall(lsmns_debugfs_init);
 
 int print_debugfs(const char *msg, ...)
 {
+	va_list ap;
 	char tmp[MAX_BUFF_SIZE];
 	va_start(ap, msg);
 	vsnprintf(tmp, MAX_BUFF_SIZE, msg, ap);
