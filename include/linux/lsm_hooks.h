@@ -28,7 +28,11 @@
 #include <linux/security.h>
 #include <linux/init.h>
 #include <linux/rculist.h>
-#include <linux/lsm_namespace.h>
+
+#define LSMNS_SELINUX           1
+#define LSMNS_APPARMOR          2
+#define LSMNS_TOMOYO            4
+#define LSMNS_OTHER             8
 
 /**
  * union security_list_options - Linux Security Module hook function list
