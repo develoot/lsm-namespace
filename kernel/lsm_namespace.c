@@ -102,8 +102,6 @@ static struct lsm_namespace *alloc_lsm_ns(struct user_namespace *user_ns)
 
 	kref_init(&new_ns->kref);
 
-	// need to add hooking func
-
 	return new_ns;
 
 fail_free:
