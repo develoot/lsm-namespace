@@ -19,6 +19,7 @@
 #include <linux/sysctl.h>
 #include <linux/audit.h>
 #include <linux/user_namespace.h>
+#include <linux/lsm_namespace.h>
 #include <linux/netfilter_ipv4.h>
 #include <linux/netfilter_ipv6.h>
 #include <net/sock.h>
@@ -1740,7 +1741,7 @@ static int __init apparmor_init(void)
 		goto buffers_out;
 	}
 	security_add_hooks(apparmor_hooks, ARRAY_SIZE(apparmor_hooks),
-				"apparmor");
+				"apparmor", LSMNS_APPARMOR);
 
 	/* Report that AppArmor successfully initialized */
 	apparmor_initialized = 1;

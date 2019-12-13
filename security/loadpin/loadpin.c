@@ -12,6 +12,7 @@
 #include <linux/module.h>
 #include <linux/fs.h>
 #include <linux/lsm_hooks.h>
+#include <linux/lsm_namespace.h>
 #include <linux/mount.h>
 #include <linux/path.h>
 #include <linux/sched.h>	/* current */
@@ -227,7 +228,8 @@ static int __init loadpin_init(void)
 	pr_info("ready to pin (currently %senforcing)\n",
 		enforce ? "" : "not ");
 	parse_exclude();
-	security_add_hooks(loadpin_hooks, ARRAY_SIZE(loadpin_hooks), "loadpin");
+	security_add_hooks(loadpin_hooks, ARRAY_SIZE(loadpin_hooks), "loadpin",
+					LSMNS_OTHER);
 	return 0;
 }
 

@@ -8,7 +8,6 @@
  *	      Chris Vance, <cvance@nai.com>
  *	      Wayne Salamon, <wsalamon@nai.com>
  *	      James Morris <jmorris@redhat.com>
- *
  *  Copyright (C) 2001,2002 Networks Associates Technology, Inc.
  *  Copyright (C) 2003-2008 Red Hat, Inc., James Morris <jmorris@redhat.com>
  *					   Eric Paris <eparis@redhat.com>
@@ -69,6 +68,7 @@
 #include <linux/sctp.h>
 #include <net/sctp/structs.h>
 #include <linux/quota.h>
+#include <linux/lsm_namespace.h>
 #include <linux/un.h>		/* for Unix socket types */
 #include <net/af_unix.h>	/* for Unix socket types */
 #include <linux/parser.h>
@@ -7055,7 +7055,8 @@ static __init int selinux_init(void)
 
 	hashtab_cache_init();
 
-	security_add_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks), "selinux");
+	security_add_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks), "selinux",
+								LSMNS_SELINUX);
 
 	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
 		panic("SELinux: Unable to register AVC netcache callback\n");

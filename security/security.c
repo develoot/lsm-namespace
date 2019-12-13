@@ -17,6 +17,7 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/lsm_hooks.h>
+#include <linux/lsm_namespace.h>
 #include <linux/integrity.h>
 #include <linux/ima.h>
 #include <linux/evm.h>
@@ -323,6 +324,8 @@ static void __init ordered_lsm_init(void)
 	for (lsm = ordered_lsms; *lsm; lsm++)
 		initialize_lsm(*lsm);
 
+	lsmns_init(ordered_lsms);
+
 	kfree(ordered_lsms);
 }
 
@@ -441,12 +444,13 @@ static int lsm_append(const char *new, char **result)
  * Each LSM has to register its hooks with the infrastructure.
  */
 void __init security_add_hooks(struct security_hook_list *hooks, int count,
-				char *lsm)
+				char *lsm, int type)
 {
 	int i;
 
 	for (i = 0; i < count; i++) {
 		hooks[i].lsm = lsm;
+		hooks[i].type = type;
 		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
 	}
 
@@ -646,26 +650,43 @@ static void __init lsm_early_task(struct task_struct *task)
  *	This is a hook that returns a value.
  */
 
-#define call_void_hook(FUNC, ...)				\
-	do {							\
-		struct security_hook_list *P;			\
-								\
-		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) \
-			P->hook.FUNC(__VA_ARGS__);		\
+#define call_void_hook(FUNC, ...)						\
+	do {									\
+		struct lsm_namespace *lsm_ns;					\
+		struct security_hook_list *P;					\
+		struct task_struct *tsk = current;				\
+										\
+		task_lock(tsk);							\
+		lsm_ns = tsk->nsproxy->lsm_ns;					\
+		task_unlock(tsk);						\
+										\
+		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) {	\
+			if (!(P->type & lsm_ns->types || P->type & LSMNS_OTHER))\
+				continue;					\
+			P->hook.FUNC(__VA_ARGS__);				\
+		}								\
 	} while (0)
 
-#define call_int_hook(FUNC, IRC, ...) ({			\
-	int RC = IRC;						\
-	do {							\
-		struct security_hook_list *P;			\
-								\
-		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { \
-			RC = P->hook.FUNC(__VA_ARGS__);		\
-			if (RC != 0)				\
-				break;				\
-		}						\
-	} while (0);						\
-	RC;							\
+#define call_int_hook(FUNC, IRC, ...) ({					\
+	int RC = IRC;								\
+	do {									\
+		struct lsm_namespace *lsm_ns;					\
+		struct security_hook_list *P;					\
+		struct task_struct *tsk = current;				\
+										\
+		task_lock(tsk);							\
+		lsm_ns = tsk->nsproxy->lsm_ns;					\
+		task_unlock(tsk);						\
+										\
+		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) {	\
+			if (!(P->type & lsm_ns->types || P->type & LSMNS_OTHER))\
+				continue;					\
+			RC = P->hook.FUNC(__VA_ARGS__);				\
+			if (RC != 0)						\
+				break;						\
+		}								\
+	} while (0);								\
+	RC;									\
 })
 
 /* Security operations */
