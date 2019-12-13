@@ -450,6 +450,7 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
 
 	for (i = 0; i < count; i++) {
 		hooks[i].lsm = lsm;
+		hooks[i].type = type;
 		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
 	}
 
