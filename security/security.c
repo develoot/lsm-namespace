@@ -640,6 +640,8 @@ static void __init lsm_early_task(struct task_struct *task)
 		panic("%s: Early task alloc failed.\n", __func__);
 }
 
+struct nsproxy init_nsproxy;
+
 /*
  * Hook list operation macros.
  *
@@ -654,11 +656,8 @@ static void __init lsm_early_task(struct task_struct *task)
 	do {									\
 		struct lsm_namespace *lsm_ns;					\
 		struct security_hook_list *P;					\
-		struct task_struct *tsk = current;				\
 										\
-		task_lock(tsk);							\
-		lsm_ns = tsk->nsproxy->lsm_ns;					\
-		task_unlock(tsk);						\
+		lsm_ns = init_nsproxy->lsm_ns;					\
 										\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) {	\
 			if (!(P->type & lsm_ns->types || P->type & LSMNS_OTHER))\
@@ -672,11 +671,8 @@ static void __init lsm_early_task(struct task_struct *task)
 	do {									\
 		struct lsm_namespace *lsm_ns;					\
 		struct security_hook_list *P;					\
-		struct task_struct *tsk = current;				\
 										\
-		task_lock(tsk);							\
-		lsm_ns = tsk->nsproxy->lsm_ns;					\
-		task_unlock(tsk);						\
+		lsm_ns = init_nsproxy->lsm_ns;					\
 										\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) {	\
 			if (!(P->type & lsm_ns->types || P->type & LSMNS_OTHER))\
