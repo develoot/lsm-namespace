@@ -1697,7 +1697,7 @@ int security_task_prlimit(const struct cred *cred, const struct cred *tcred,
 int security_task_setrlimit(struct task_struct *p, unsigned int resource,
 		struct rlimit *new_rlim)
 {
-	return call_int_hook(task_setrlimit, 0, p, resource, new_rlim);
+	return 0;
 }
 
 int security_task_setscheduler(struct task_struct *p)
