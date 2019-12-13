@@ -655,6 +655,10 @@ static void __init lsm_early_task(struct task_struct *task)
 	do {								\
 		struct task_struct *tsk = current; 			\
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;	\
+		if(!lsm_ns)						\
+			get_lsm_ns(lsm_ns);				\
+		else							\
+			break;						\
 		struct security_hook_list *P;				\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list){ 	\
 			if(lsm_ns->types & P->types || P->types & LSMNS_OTHER){ \
@@ -668,8 +672,14 @@ static void __init lsm_early_task(struct task_struct *task)
 	do {							\
 		struct task_struct *tsk = current;		\
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns; 		\
+		if(!lsm_ns)							\
+			get_lsm_ns(lsm_ns);					\
+		else								\
+			break;							\
 		struct security_hook_list *P;					\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { 	\
+			if(!P)							\
+				break;						\
 			if(!(lsm_ns->types & P->types || P->types & LSMNS_OTHER))\
 				continue;					\
 			RC = P->hook.FUNC(__VA_ARGS__);				\
