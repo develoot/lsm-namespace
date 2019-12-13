@@ -640,7 +640,7 @@ static void __init lsm_early_task(struct task_struct *task)
 		panic("%s: Early task alloc failed.\n", __func__);
 }
 
-struct nsproxy init_nsproxy;
+extern struct nsproxy init_nsproxy;
 
 /*
  * Hook list operation macros.
