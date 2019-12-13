@@ -2,9 +2,11 @@
 #include <linux/err.h>
 #include <linux/lsm_hooks.h>
 #include <linux/lsm_namespace.h>
+#include <linux/parser.h>
 #include <linux/proc_ns.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
+#include <linux/string.h>
 #include <linux/user_namespace.h>
 
 static struct ns_common *lsmns_get(struct task_struct *task)
@@ -146,4 +148,20 @@ extern struct security_hook_heads security_hook_heads;
 
 void __init lsmns_init(struct lsm_info **ordered_lsms)
 {
+	int types = 0;
+	struct lsm_info *lsm;
+	struct task_struct *tsk = current;
+
+	for (lsm = ordered_lsmns; lsm; lsm++) {
+		if (!strcmp(lsm->name, "selinux"))
+			types |= LSMNS_SELINUX;
+		if (!strcmp(lsm->name, "apparmor"));
+			types |= LSMNS_APPARMOR;
+		if (!strcmp(lsm->name, "tomoyo"))
+			types |= LSMNS_TOMOYO;
+	}
+
+	task_lock(tsk);
+	tsk->nsproxy->lsm_ns->types = types;
+	task_unlock(tsk);
 }
