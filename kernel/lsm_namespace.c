@@ -155,7 +155,7 @@ void __init lsmns_init(struct lsm_info **ordered_lsms)
 	struct lsm_info *lsm;
 	struct task_struct *tsk = current;
 
-	for (lsm = ordered_lsmns; lsm; lsm++) {
+	for (lsm = ordered_lsms; lsm; lsm++) {
 		if (!strcmp(lsm->name, "selinux"))
 			types |= LSMNS_SELINUX;
 		if (!strcmp(lsm->name, "apparmor"));
