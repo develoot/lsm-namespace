@@ -42,7 +42,7 @@ static inline struct lsm_namespace *to_lsm_ns(struct ns_common *ns)
 	return container_of(ns, struct lsm_namespace, ns);
 }
 
-void __init lsmns_init(struct lsm_info **ordered_lsms);
+void __init lsmns_init(const struct lsm_info **ordered_lsms);
 struct lsm_namespace *copy_lsm_ns(unsigned long flags,
 				struct user_namespace *user_ns, struct lsm_namespace *old_ns);
 extern struct lsm_namespace init_lsm_ns;
