@@ -324,7 +324,7 @@ static void __init ordered_lsm_init(void)
 	for (lsm = ordered_lsms; *lsm; lsm++)
 		initialize_lsm(*lsm);
 
-	lsmns_init();
+	lsmns_init(ordered_lsms);
 
 	kfree(ordered_lsms);
 }

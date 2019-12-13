@@ -144,6 +144,6 @@ __initcall(lsm_namespaces_init);
 
 extern struct security_hook_heads security_hook_heads;
 
-void __init lsmns_init(void)
+void __init lsmns_init(struct lsm_info **ordered_lsms)
 {
 }
