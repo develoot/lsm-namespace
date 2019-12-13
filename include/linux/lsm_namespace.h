@@ -13,6 +13,7 @@
 #define LSMNS_SELINUX		1
 #define LSMNS_APPARMOR		2
 #define LSMNS_TOMOYO		4
+#define LSMNS_OTHER		8
 
 struct lsm_namespace {
 	struct kref kref;

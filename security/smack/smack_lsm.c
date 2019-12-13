@@ -12,8 +12,7 @@
  *  Copyright (C) 2009 Hewlett-Packard Development Company, L.P.
  *                Paul Moore <paul@paul-moore.com>
  *  Copyright (C) 2010 Nokia Corporation
- *  Copyright (C) 2011 Intel Corporation.
- */
+ *  Copyright (C) 2011 Intel Corporation.  */
 
 #include <linux/xattr.h>
 #include <linux/pagemap.h>
@@ -35,6 +34,7 @@
 #include <linux/audit.h>
 #include <linux/magic.h>
 #include <linux/dcache.h>
+#include <linux/lsm_namespace.h>
 #include <linux/personality.h>
 #include <linux/msg.h>
 #include <linux/shm.h>
@@ -4788,7 +4788,7 @@ static __init int smack_init(void)
 	/*
 	 * Register with LSM
 	 */
-	security_add_hooks(smack_hooks, ARRAY_SIZE(smack_hooks), "smack");
+	security_add_hooks(smack_hooks, ARRAY_SIZE(smack_hooks), "smack", LSMNS_OTHER);
 	smack_enabled = 1;
 
 	pr_info("Smack:  Initializing.\n");
