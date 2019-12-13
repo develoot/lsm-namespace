@@ -653,7 +653,6 @@ static void __init lsm_early_task(struct task_struct *task)
 
 #define call_void_hook(FUNC, ...)					\
 	do {								\
-		print_debugfs("[CALL_VOID_HOOK] start\n");		\
 		struct task_struct *tsk = current; 			\
 		task_lock(tsk);						\
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;	\
@@ -661,17 +660,14 @@ static void __init lsm_early_task(struct task_struct *task)
 		struct security_hook_list *P;				\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list){ 	\
 			if(lsm_ns->types & P->types || P->types & LSMNS_OTHER){ \
-				print_debugfs("%s\n", P->lsm);			\
 				P->hook.FUNC(__VA_ARGS__);			\
 			}							\
 		}								\
-		print_debugfs("[CALL_VOID_HOOK] end\n");			\
 	} while (0)
 
 #define call_int_hook(FUNC, IRC, ...) ({			\
 	int RC = IRC;						\
 	do {							\
-		print_debugfs("[CALL_INT_HOOK] start\n");	\
 		struct task_struct *tsk = current;		\
 		task_lock(tsk);					\
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns; 		\
@@ -681,11 +677,9 @@ static void __init lsm_early_task(struct task_struct *task)
 			if(!(lsm_ns->types & P->types || P->types & LSMNS_OTHER))\
 				continue;					\
 			RC = P->hook.FUNC(__VA_ARGS__);				\
-			print_debugfs("%s\n", P->lsm);				\
 			if (RC != 0)						\
 				break;						\
 		}						\
-		print_debugfs("[CALL_INT_HOOK] end\n");		\
 	} while (0);						\
 	RC;							\
 })

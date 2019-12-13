@@ -23,6 +23,7 @@
 #include <linux/netfilter_ipv6.h>
 #include <net/sock.h>
 #include <uapi/linux/mount.h>
+#include <debug/debugfs.h>
 
 #include "include/apparmor.h"
 #include "include/apparmorfs.h"
@@ -376,6 +377,7 @@ static int apparmor_path_rename(const struct path *old_dir, struct dentry *old_d
 
 static int apparmor_path_chmod(const struct path *path, umode_t mode)
 {
+	print_debugfs("apparmor_path_chmod called\n");
 	return common_perm_cond(OP_CHMOD, path, AA_MAY_CHMOD);
 }
 
