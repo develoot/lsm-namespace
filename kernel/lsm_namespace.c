@@ -152,7 +152,7 @@ extern struct security_hook_heads security_hook_heads;
 void __init lsmns_init(struct lsm_info **ordered_lsms)
 {
 	int types = 0;
-	struct lsm_info *lsm;
+	struct lsm_info **lsm;
 	struct task_struct *tsk = current;
 
 	for (lsm = ordered_lsms; lsm; lsm++) {
