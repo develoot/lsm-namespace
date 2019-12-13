@@ -654,9 +654,7 @@ static void __init lsm_early_task(struct task_struct *task)
 #define call_void_hook(FUNC, ...)					\
 	do {								\
 		struct task_struct *tsk = current; 			\
-		task_lock(tsk);						\
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;	\
-		task_unlock(tsk);					\
 		struct security_hook_list *P;				\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list){ 	\
 			if(lsm_ns->types & P->types || P->types & LSMNS_OTHER){ \
@@ -669,9 +667,7 @@ static void __init lsm_early_task(struct task_struct *task)
 	int RC = IRC;						\
 	do {							\
 		struct task_struct *tsk = current;		\
-		task_lock(tsk);					\
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns; 		\
-		task_unlock(tsk);						\
 		struct security_hook_list *P;					\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { 	\
 			if(!(lsm_ns->types & P->types || P->types & LSMNS_OTHER))\
