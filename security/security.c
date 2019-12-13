@@ -651,14 +651,16 @@ static void __init lsm_early_task(struct task_struct *task)
  *	This is a hook that returns a value.
  */
 
-#define call_void_hook(FUNC, ...)					\
-	do {								\
-		struct task_struct *tsk = current; 			\
-		task_lock(tsk);						\
-		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;	\
-		task_unlock(tsk);					\
-		struct security_hook_list *P;				\
-		hlist_for_each_entry(P, &security_hook_heads.FUNC, list){ 	\
+#define call_void_hook(FUNC, ...)						\
+	do {									\
+		struct task_struct *tsk = current; 				\
+		task_lock(tsk);							\
+		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;		\
+		task_unlock(tsk);						\
+		struct security_hook_list *P;					\
+		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { 	\
+			if (!(P->type & lsm_ns->types || P->type & LSMNS_OTHER))\
+				continue;					\
 			P->hook.FUNC(__VA_ARGS__);				\
 		}								\
 	} while (0)
@@ -673,6 +675,8 @@ static void __init lsm_early_task(struct task_struct *task)
 		task_unlock(tsk);						\
 		struct security_hook_list *P;					\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { 	\
+			if (!(P->type & lsm_ns->types || P->type & LSMNS_OTHER))\
+				continue;					\
 			RC = P->hook.FUNC(__VA_ARGS__);				\
 			if (RC != 0)						\
 				break;						\
