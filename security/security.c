@@ -646,26 +646,43 @@ static void __init lsm_early_task(struct task_struct *task)
  *	This is a hook that returns a value.
  */
 
-#define call_void_hook(FUNC, ...)				\
-	do {							\
-		struct security_hook_list *P;			\
-								\
-		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) \
-			P->hook.FUNC(__VA_ARGS__);		\
+#define call_void_hook(FUNC, ...)						\
+	do {									\
+		struct lsm_namespace *lsm_ns;					\
+		struct security_hook_list *P;					\
+		struct task_struct *tsk = current;				\
+										\
+		task_lock(tsk);							\
+		lsm_ns = tsk->nsproxy->lsm_ns;					\
+		task_unlock(tsk);						\
+										\
+		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) {	\
+			if (!(P->type & lsm_ns->types || P->type & LSMNS_OTHER))\
+				continue;					\
+			P->hook.FUNC(__VA_ARGS__);				\
+		}								\
 	} while (0)
 
-#define call_int_hook(FUNC, IRC, ...) ({			\
-	int RC = IRC;						\
-	do {							\
-		struct security_hook_list *P;			\
-								\
-		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { \
-			RC = P->hook.FUNC(__VA_ARGS__);		\
-			if (RC != 0)				\
-				break;				\
-		}						\
-	} while (0);						\
-	RC;							\
+#define call_int_hook(FUNC, IRC, ...) ({					\
+	int RC = IRC;								\
+	do {									\
+		struct lsm_namespace *lsm_ns;					\
+		struct security_hook_list *P;					\
+		struct task_struct *tsk = current;				\
+										\
+		task_lock(tsk);							\
+		lsm_ns = tsk->nsproxy->lsm_ns;					\
+		task_unlock(tsk);						\
+										\
+		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) {	\
+			if (!(P->type & lsm_ns->types || P->type & LSMNS_OTHER))\
+				continue;					\
+			RC = P->hook.FUNC(__VA_ARGS__);				\
+			if (RC != 0)						\
+				break;						\
+		}								\
+	} while (0);								\
+	RC;									\
 })
 
 /* Security operations */
