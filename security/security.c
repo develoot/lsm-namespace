@@ -657,7 +657,7 @@ struct nsproxy init_nsproxy;
 		struct lsm_namespace *lsm_ns;					\
 		struct security_hook_list *P;					\
 										\
-		lsm_ns = init_nsproxy->lsm_ns;					\
+		lsm_ns = init_nsproxy.lsm_ns;					\
 										\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) {	\
 			if (!(P->type & lsm_ns->types || P->type & LSMNS_OTHER))\
@@ -672,7 +672,7 @@ struct nsproxy init_nsproxy;
 		struct lsm_namespace *lsm_ns;					\
 		struct security_hook_list *P;					\
 										\
-		lsm_ns = init_nsproxy->lsm_ns;					\
+		lsm_ns = init_nsproxy.lsm_ns;					\
 										\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) {	\
 			if (!(P->type & lsm_ns->types || P->type & LSMNS_OTHER))\
