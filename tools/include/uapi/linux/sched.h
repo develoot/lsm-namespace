@@ -22,7 +22,7 @@
 #define CLONE_SETTLS	0x00080000	/* create a new TLS for the child */
 #define CLONE_PARENT_SETTID	0x00100000	/* set the TID in the parent */
 #define CLONE_CHILD_CLEARTID	0x00200000	/* clear the TID in the child */
-#define CLONE_DETACHED		0x00400000	/* Unused, ignored */
+#define CLONE_NEWLSM		0x00400000	/* New lsm namespace */
 #define CLONE_UNTRACED		0x00800000	/* set if the tracing process can't force CLONE_PTRACE on this clone */
 #define CLONE_CHILD_SETTID	0x01000000	/* set the TID in the child */
 #define CLONE_NEWCGROUP		0x02000000	/* New cgroup namespace */
@@ -37,8 +37,7 @@
 /**
  * struct clone_args - arguments for the clone3 syscall
  * @flags:       Flags for the new process as listed above.
- *               All flags are valid except for CSIGNAL and
- *               CLONE_DETACHED.
+ *               All flags are valid except for CSIGNAL.
  * @pidfd:       If CLONE_PIDFD is set, a pidfd will be
  *               returned in this argument.
  * @child_tid:   If CLONE_CHILD_SETTID is set, the TID of the
