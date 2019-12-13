@@ -17,6 +17,7 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/lsm_hooks.h>
+#include <linux/lsm_namespace.h>
 #include <linux/integrity.h>
 #include <linux/ima.h>
 #include <linux/evm.h>
@@ -322,6 +323,8 @@ static void __init ordered_lsm_init(void)
 	lsm_early_task(current);
 	for (lsm = ordered_lsms; *lsm; lsm++)
 		initialize_lsm(*lsm);
+
+	lsmns_init();
 
 	kfree(ordered_lsms);
 }
