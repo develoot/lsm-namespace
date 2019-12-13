@@ -10,6 +10,10 @@
 #include <linux/sched/task.h>
 #include <linux/user_namespace.h>
 
+#define LSMNS_SELINUX		1
+#define LSMNS_APPARMOR		2
+#define LSMNS_TOMOYO		4
+
 struct security_hook_ptrs {
 	struct hlist_node *binder_set_context_mgr;
 	struct hlist_node *binder_transaction;
@@ -257,8 +261,7 @@ struct lsm_namespace {
 	struct ns_common ns;
 	struct user_namespace *user_ns;
 	struct ucounts *ucounts;
-	struct security_hook_ptrs start;
-	struct security_hook_ptrs end;
+	int types;
 } __randomize_layout;
 
 static inline struct lsm_namespace *get_lsm_ns(struct lsm_namespace *ns)
