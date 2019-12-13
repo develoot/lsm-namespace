@@ -6,3 +6,6 @@
 #include <linux/kernel.h>
 
 int print_debugfs(const char *msg, ...);
+void flush_plist(void);
+int print_plist(const char* msg);
+

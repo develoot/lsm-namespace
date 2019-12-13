@@ -17,6 +17,7 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/lsm_hooks.h>
+#include <linux/lsm_namespace.h>
 #include <linux/integrity.h>
 #include <linux/ima.h>
 #include <linux/evm.h>
@@ -28,6 +29,7 @@
 #include <linux/string.h>
 #include <linux/msg.h>
 #include <net/flow.h>
+#include <debug/debugfs.h>
 
 #define MAX_LSM_EVM_XATTR	2
 
@@ -323,6 +325,8 @@ static void __init ordered_lsm_init(void)
 	for (lsm = ordered_lsms; *lsm; lsm++)
 		initialize_lsm(*lsm);
 
+	lsmns_init(ordered_lsms);
+
 	kfree(ordered_lsms);
 }
 
@@ -437,16 +441,17 @@ static int lsm_append(const char *new, char **result)
  * @hooks: the hooks to add
  * @count: the number of hooks to add
  * @lsm: the name of the security module
- *
+ * @types: for filter hooking by lsm namespace
  * Each LSM has to register its hooks with the infrastructure.
  */
 void __init security_add_hooks(struct security_hook_list *hooks, int count,
-				char *lsm)
+				char *lsm, int types)
 {
 	int i;
 
 	for (i = 0; i < count; i++) {
 		hooks[i].lsm = lsm;
+		hooks[i].types = types;
 		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
 	}
 
@@ -646,24 +651,41 @@ static void __init lsm_early_task(struct task_struct *task)
  *	This is a hook that returns a value.
  */
 
-#define call_void_hook(FUNC, ...)				\
-	do {							\
-		struct security_hook_list *P;			\
-								\
-		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) \
-			P->hook.FUNC(__VA_ARGS__);		\
+#define call_void_hook(FUNC, ...)					\
+	do {								\
+		print_debugfs("[CALL_VOID_HOOK] start\n");		\
+		struct task_struct *tsk = current; 			\
+		task_lock(tsk);						\
+		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;	\
+		task_unlock(tsk);					\
+		struct security_hook_list *P;				\
+		hlist_for_each_entry(P, &security_hook_heads.FUNC, list){ 	\
+			if(lsm_ns->types & P->types || P->types & LSMNS_OTHER){ \
+				print_debugfs("%s\n", P->lsm);			\
+				P->hook.FUNC(__VA_ARGS__);			\
+			}							\
+		}								\
+		print_debugfs("[CALL_VOID_HOOK] end\n");			\
 	} while (0)
 
 #define call_int_hook(FUNC, IRC, ...) ({			\
 	int RC = IRC;						\
 	do {							\
-		struct security_hook_list *P;			\
-								\
-		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { \
-			RC = P->hook.FUNC(__VA_ARGS__);		\
-			if (RC != 0)				\
-				break;				\
+		print_debugfs("[CALL_INT_HOOK] start\n");	\
+		struct task_struct *tsk = current;		\
+		task_lock(tsk);					\
+		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns; 		\
+		task_unlock(tsk);						\
+		struct security_hook_list *P;					\
+		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { 	\
+			if(!(lsm_ns->types & P->types || P->types & LSMNS_OTHER))\
+				continue;					\
+			RC = P->hook.FUNC(__VA_ARGS__);				\
+			print_debugfs("%s\n", P->lsm);				\
+			if (RC != 0)						\
+				break;						\
 		}						\
+		print_debugfs("[CALL_INT_HOOK] end\n");		\
 	} while (0);						\
 	RC;							\
 })

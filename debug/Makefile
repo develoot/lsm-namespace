@@ -1,1 +1,1 @@
-obj-y := debugfs.o
+obj-y := debugfs.o print_hook.o
