@@ -685,6 +685,7 @@ static void __init lsm_early_task(struct task_struct *task)
 			task_unlock(tsk);					\
 			break;							\
 		}								\
+		task_unlock(tsk);						\
 		struct security_hook_list *P;					\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { 	\
 			if(!(lsm_ns->types & P->types || P->types & LSMNS_OTHER))\
