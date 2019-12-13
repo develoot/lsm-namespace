@@ -76,6 +76,8 @@ static void dec_lsm_namespaces(struct ucounts *ucounts)
 
 static struct kmem_cache *lsm_ns_cachep;
 
+extern int parse_lsmns_procfs(void);
+
 static struct lsm_namespace *alloc_lsm_ns(struct user_namespace *user_ns)
 {
 	struct lsm_namespace *new_ns;
@@ -99,6 +101,7 @@ static struct lsm_namespace *alloc_lsm_ns(struct user_namespace *user_ns)
 	}
 	new_ns->ns.ops = &lsmns_operations;
 	new_ns->user_ns = get_user_ns(user_ns);
+	new_ns->types = parse_lsmns_procfs();
 
 	kref_init(&new_ns->kref);
 
