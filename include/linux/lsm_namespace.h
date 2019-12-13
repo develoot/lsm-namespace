@@ -3,7 +3,6 @@
 
 #include <linux/cred.h>
 #include <linux/kref.h>
-#include <linux/lsm_hooks.h>
 #include <linux/ns_common.h>
 #include <linux/nsproxy.h>
 #include <linux/proc_ns.h>
