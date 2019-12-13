@@ -1,6 +1,5 @@
 #include <linux/capability.h>
 #include <linux/err.h>
-#include <linux/lsm_hooks.h>
 #include <linux/lsm_namespace.h>
 #include <linux/parser.h>
 #include <linux/proc_ns.h>
