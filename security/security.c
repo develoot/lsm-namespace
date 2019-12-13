@@ -656,12 +656,6 @@ static void __init lsm_early_task(struct task_struct *task)
 		struct task_struct *tsk = current; 			\
 		task_lock(tsk);						\
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;	\
-		if(!lsm_ns)						\
-			get_lsm_ns(lsm_ns);				\
-		else{							\
-			task_unlock(tsk);				\
-			break;						\
-		}							\
 		task_unlock(tsk);					\
 		struct security_hook_list *P;				\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list){ 	\
@@ -669,7 +663,6 @@ static void __init lsm_early_task(struct task_struct *task)
 				P->hook.FUNC(__VA_ARGS__);			\
 			}							\
 		}								\
-		put_lsm_ns(lsm_ns);						\
 	} while (0)
 
 
@@ -679,12 +672,6 @@ static void __init lsm_early_task(struct task_struct *task)
 		struct task_struct *tsk = current;		\
 		task_lock(tsk);					\
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns; 		\
-		if(!lsm_ns)							\
-			get_lsm_ns(lsm_ns);					\
-		else{								\
-			task_unlock(tsk);					\
-			break;							\
-		}								\
 		task_unlock(tsk);						\
 		struct security_hook_list *P;					\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { 	\
@@ -694,7 +681,6 @@ static void __init lsm_early_task(struct task_struct *task)
 			if (RC != 0)						\
 				break;						\
 		}						\
-		put_lsm_ns(lsm_ns);				\
 	} while (0);						\
 	RC;							\
 })
@@ -757,7 +743,7 @@ int security_capable(const struct cred *cred,
 		     int cap,
 		     unsigned int opts)
 {
-	return call_int_hook(capable, 0, cred, ns, cap, opts);
+	return 0;
 }
 
 int security_quotactl(int cmds, int type, int id, struct super_block *sb)
