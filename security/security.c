@@ -673,6 +673,25 @@ static void __init lsm_early_task(struct task_struct *task)
 	RC;									\
 })
 
+static inline struct lsm_namespace *get_lsmns_lock()
+{
+	struct task_struct *tsk;
+	struct lsm_namespace *lsm_ns;
+
+	tsk = current;
+
+	task_lock(tsk);
+	lsm_ns = tsk->nsproxy->lsm_ns;
+	task_unlock(tsk);
+
+	return lsm_ns;
+}
+
+static inline struct lsm_namespace *get_lsmns()
+{
+	return current->nsproxy->lsm_ns;
+}
+
 /* Security operations */
 
 int security_binder_set_context_mgr(struct task_struct *mgr)
