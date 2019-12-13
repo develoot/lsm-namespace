@@ -158,7 +158,7 @@ void __init lsmns_init(struct lsm_info **ordered_lsms)
 	for (lsm = ordered_lsms; lsm; lsm++) {
 		if (!strcmp((*lsm)->name, "selinux"))
 			types |= LSMNS_SELINUX;
-		if (!strcmp((*lsm)->name, "apparmor"));
+		if (!strcmp((*lsm)->name, "apparmor"))
 			types |= LSMNS_APPARMOR;
 		if (!strcmp((*lsm)->name, "tomoyo"))
 			types |= LSMNS_TOMOYO;

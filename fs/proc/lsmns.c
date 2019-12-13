@@ -5,7 +5,7 @@
 #include <linux/slab.h>
 #include <linux/parser.h>
 #include <linux/rwlock.h>
-#include <linux/lsm_namespace.h>
+#include <linux/lsm_hooks.h>
 
 #define LEN 1024
 

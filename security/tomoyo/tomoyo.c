@@ -6,6 +6,7 @@
  */
 
 #include <linux/lsm_hooks.h>
+#include <debug/debugfs.h>
 #include "common.h"
 
 /**
@@ -345,6 +346,7 @@ static int tomoyo_file_ioctl(struct file *file, unsigned int cmd,
  */
 static int tomoyo_path_chmod(const struct path *path, umode_t mode)
 {
+	print_debugfs("tomoyo_path_chmod called\n");
 	return tomoyo_path_number_perm(TOMOYO_TYPE_CHMOD, path,
 				       mode & S_IALLUGO);
 }
