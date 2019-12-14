@@ -149,6 +149,12 @@ __initcall(lsm_namespaces_init);
 
 extern struct security_hook_heads security_hook_heads;
 
+static int is_lsm_enabled(struct lsm_info *lsm){
+	if(!(lsm->enabled))
+		return 0;
+	return *(lsm->enabled);
+}
+
 void __init lsmns_init(struct lsm_info **ordered_lsms)
 {
 	int types = 0;
@@ -156,12 +162,14 @@ void __init lsmns_init(struct lsm_info **ordered_lsms)
 	struct task_struct *tsk = current;
 
 	for (lsm = ordered_lsms; *lsm; lsm++) {
-		if (!strcmp((*lsm)->name, "selinux"))
-			types |= LSMNS_SELINUX;
-		if (!strcmp((*lsm)->name, "apparmor"))
-			types |= LSMNS_APPARMOR;
-		if (!strcmp((*lsm)->name, "tomoyo"))
-			types |= LSMNS_TOMOYO;
+		if(is_lsm_enabled(*lsm)){
+			if (!strcmp((*lsm)->name, "selinux"))
+                        	types |= LSMNS_SELINUX;
+                	if (!strcmp((*lsm)->name, "apparmor"))
+                        	types |= LSMNS_APPARMOR;
+                	if (!strcmp((*lsm)->name, "tomoyo"))
+                        	types |= LSMNS_TOMOYO;
+		}
 	}
 
 	task_lock(tsk);
