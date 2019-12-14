@@ -659,8 +659,10 @@ static void __init lsm_early_task(struct task_struct *task)
 		task_unlock(tsk);						\
 		struct security_hook_list *P;					\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { 	\
-			if (!(P->types & lsm_ns->types || P->types & LSMNS_OTHER))\
+			if (!(P->types & lsm_ns->types || P->types & LSMNS_OTHER)){\
+				printk(KERN_ALERT "[call_void_hook] not hooking");\
 				continue;					\
+			}							\
 			P->hook.FUNC(__VA_ARGS__);				\
 		}								\
 	} while (0)
@@ -675,8 +677,10 @@ static void __init lsm_early_task(struct task_struct *task)
 		task_unlock(tsk);						\
 		struct security_hook_list *P;					\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { 	\
-			if (!(P->types & lsm_ns->types || P->types & LSMNS_OTHER))\
+			if (!(P->types & lsm_ns->types || P->types & LSMNS_OTHER)){\
+				printk(KERN_ALERT "[call_int_hook] not hooking");\
 				continue;					\
+			}							\
 			RC = P->hook.FUNC(__VA_ARGS__);				\
 			if (RC != 0)						\
 				break;						\
