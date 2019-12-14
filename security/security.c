@@ -653,12 +653,14 @@ static void __init lsm_early_task(struct task_struct *task)
 
 #define call_void_hook(FUNC, ...)						\
 	do {									\
+		printk(KERN_DEBUG "[call_void_hook]"#FUNC);			\
 		struct task_struct *tsk = current; 				\
 		task_lock(tsk);							\
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns;		\
 		task_unlock(tsk);						\
 		struct security_hook_list *P;					\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { 	\
+			prink(KERN_DEBUG "[call_void_hook] types(%x) lsm(%s)", P->types, P->lsm); \
 			if (!(P->types & lsm_ns->types || P->types & LSMNS_OTHER)){\
 				printk(KERN_ALERT "[call_void_hook] not hooking");\
 				continue;					\
@@ -671,12 +673,14 @@ static void __init lsm_early_task(struct task_struct *task)
 #define call_int_hook(FUNC, IRC, ...) ({			\
 	int RC = IRC;						\
 	do {							\
+		printk(KERN_DEBUG "[call_int_hook]"#FUNC);	\
 		struct task_struct *tsk = current;		\
 		task_lock(tsk);					\
 		struct lsm_namespace *lsm_ns = tsk->nsproxy->lsm_ns; 		\
 		task_unlock(tsk);						\
 		struct security_hook_list *P;					\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { 	\
+			printk(KERN_DEBUG "[call_int_hook] types(%x) lms(%s)", P->types, P->lsm);\
 			if (!(P->types & lsm_ns->types || P->types & LSMNS_OTHER)){\
 				printk(KERN_ALERT "[call_int_hook] not hooking");\
 				continue;					\
