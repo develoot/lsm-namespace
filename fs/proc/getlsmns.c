@@ -47,7 +47,7 @@ void static write_buff(const char* msg){
 		cursor ++;
 		buff[cursor++] = '\n';
 	}
-	wirte_unlock(&buff_lock);
+	write_unlock(&buff_lock);
 	return 0;
 }
 
@@ -69,7 +69,7 @@ static ssize_t lsmns_read(struct file* fp, char __user *user_buff,
 			write_buff("tomoyo");
 	}
 	write_lock(&buff_lock);
-	size = simple_read_from_buff(user_buff, count, pos, buff, LEN);
+	size = simple_read_from_buffer(user_buff, count, pos, buff, LEN);
 	write_unlock(&buff_lock);
 	return size;
 }
