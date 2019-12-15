@@ -29,6 +29,8 @@ static ssize_t plist_read(struct file *file, char __user *user_buff,
 }
 
 extern int print_hooklist(long index);
+void extern print_typeInfo(void);
+
 static ssize_t plist_write(struct file *file, const char __user *user_buff,
                 size_t count, loff_t *pos)
 {
@@ -38,7 +40,10 @@ static ssize_t plist_write(struct file *file, const char __user *user_buff,
         ssize_t sz;
         sz = simple_write_to_buffer(tmp, MAX_BUFF_SIZE, pos, user_buff, count);
         kstrtol(tmp, 10, &arg);
-        print_hooklist(arg);
+	if(arg < 0)
+		print_typeInfo();
+	else
+        	print_hooklist(arg);
         return sz;
 }
 
@@ -56,6 +61,7 @@ void flush_plist(void)
 int print_plist(const char* msg)
 {
         int len = strlen(msg);
+	len++;
         if(len + plist_cursor > MAX_BUFF_SIZE)
                 flush_plist();
         if(len == strlcpy(plist_buff + plist_cursor, msg, len)){
