@@ -96,16 +96,16 @@ static ssize_t lsmns_write(struct file* fp, const char __user *user_buff,
 	return size;
 }
 
-struct file_operations proc_fops = {
+static const struct file_operations proc_fops = {
         .read = lsmns_read,
         .write = lsmns_write,
 };
 
-static int __init proc_lsmns_init(void)
+static int __init set_lsmns_init(void)
 {
 	rwlock_init(&buff_lock);
-	proc_create_data("lsmns", 0664, NULL, &proc_fops, "lsmns");
+	proc_create_data("setlsmns", 0664, NULL, &proc_fops, "lsmns");
 	return 0;
 }
 
-fs_initcall(proc_lsmns_init);
+fs_initcall(set_lsmns_init);
