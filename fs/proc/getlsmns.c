@@ -58,15 +58,15 @@ static ssize_t lsmns_read(struct file* fp, char __user *user_buff,
 	ssize_t size = 0;
 	int types = get_current_lsmns();
 	if(types < 0){
-		write_buff("nsproxy or lsmns is NULL");
+		write_buff("nsproxy or lsmns is NULL\n");
 	}
 	else{
 		if(types & LSMNS_SELINUX)
-			write_buff("selinux");
+			write_buff("selinux\n");
 		if(types & LSMNS_APPARMOR)
-			write_buff("apparmor");
+			write_buff("apparmor\n");
 		if(types & LSMNS_TOMOYO)
-			write_buff("tomoyo");
+			write_buff("tomoyo\n");
 	}
 	write_lock(&buff_lock);
 	size = simple_read_from_buffer(user_buff, count, pos, buff, LEN);
