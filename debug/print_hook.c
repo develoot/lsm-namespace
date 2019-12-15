@@ -6,63 +6,15 @@
 #include <linux/lsm_hooks.h>
 #include <linux/list.h>
 
-#ifndef LSMNS_SELINUX
-#define LSMNS_SELINUX	0x00000001
-#endif
-
-#ifndef LSMNS_APPARMOR
-#define LSMNS_APPARMOR 	0x00000002
-#endif
-
-#ifndef LSMNS_TOMOYO
-#define LSMNS_TOMOYO	0x00000004
-#endif
-
-#ifndef LSMNS_OTHER
-#define	LSMNS_OTHER	0x00000008
-#endif
-
 extern struct security_hook_heads security_hook_heads;
 
-static int get_current_lsmns(void){
-	struct task_struct *tsk = current;
-	struct nsproxy *nsproxy;
-	struct lsm_namespace *ns;
-	int types;
-	task_lock(tsk);
-	nsproxy = tsk->nsproxy;
-	if(!nsproxy)
-		print_plist("ERROR!!!, nsproxy is NULL\n");
-	ns = nsproxy -> lsm_ns;
-	if(!ns)
-		print_plist("ERROR!!!, lsm ns is NULL\n");
-	types = ns->types;
-	task_unlock(tsk);
-	return types;
-}
-
-
-void print_typeInfo(void){
-	int types = get_current_lsmns();
-	print_plist("[CURRENT LSM NS INFO]\n");
-	if(types & LSMNS_SELINUX)
-		print_plist("SELINUX on\n");
-	if(types & LSMNS_APPARMOR)
-		print_plist("APPARMOR on\n");
-	if(types & LSMNS_TOMOYO)
-		print_plist("TOMOYO on\n");
-	return;
-}
 
 #define print_hook_list(FUNC)							\
 	do {									\
-		print_plist("[FUNC] "#FUNC); 					\
+		print_plist("[FUNC] "#FUNC);					\
 		struct security_hook_list *P;					\
-		int types= get_current_lsmns(); 				\
-		hlist_for_each_entry(P, &security_hook_heads.FUNC, list){	\
-			if(P->types & types || P->types & LSMNS_OTHER)		\
-				print_plist(P->lsm);				\
-		}								\
+		hlist_for_each_entry(P, &security_hook_heads.FUNC, list)	\
+			print_plist(P->lsm);					\
 	} while(0)								\
 
 
