@@ -41,6 +41,7 @@ struct nsproxy init_nsproxy = {
 #ifdef CONFIG_CGROUPS
 	.cgroup_ns		= &init_cgroup_ns,
 #endif
+	.lsm_ns			= &init_lsm_ns,
 };
 
 static inline struct nsproxy *create_nsproxy(void)
