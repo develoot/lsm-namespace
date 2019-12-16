@@ -9,6 +9,7 @@
  */
 
 #include <linux/lsm_hooks.h>
+#include <linux/lsm_namespace.h>
 #include <linux/sysctl.h>
 #include <linux/ptrace.h>
 #include <linux/prctl.h>
@@ -477,7 +478,7 @@ static inline void yama_init_sysctl(void) { }
 static int __init yama_init(void)
 {
 	pr_info("Yama: becoming mindful.\n");
-	security_add_hooks(yama_hooks, ARRAY_SIZE(yama_hooks), "yama");
+	security_add_hooks(yama_hooks, ARRAY_SIZE(yama_hooks), "yama", LSMNS_OTHER);
 	yama_init_sysctl();
 	return 0;
 }
