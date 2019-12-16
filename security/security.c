@@ -1737,7 +1737,15 @@ int security_task_prlimit(const struct cred *cred, const struct cred *tcred,
 int security_task_setrlimit(struct task_struct *p, unsigned int resource,
 		struct rlimit *new_rlim)
 {
-	return call_int_hook(task_setrlimit, 0, p, resource, new_rlim);
+	struct lsm_namespace *lsm_ns;
+
+	if (p->nsproxy == NULL)
+		return 0;
+
+	lsm_ns = p->nsproxy->lsm_ns;
+
+	return call_int_hook_nolock(lsm_ns, task_setrlimit, 0, p, resource,
+								new_rlim);
 }
 
 int security_task_setscheduler(struct task_struct *p)
