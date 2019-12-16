@@ -783,7 +783,9 @@ int security_capable(const struct cred *cred,
 		     int cap,
 		     unsigned int opts)
 {
-	return call_int_hook(capable, 0, cred, ns, cap, opts);
+	// return call_int_hook(capable, 0, cred, ns, cap, opts);
+
+	return 0;
 }
 
 int security_quotactl(int cmds, int type, int id, struct super_block *sb)
@@ -1450,15 +1452,17 @@ int security_file_alloc(struct file *file)
 
 void security_file_free(struct file *file)
 {
-	void *blob;
+	// void *blob;
 
-	call_void_hook(file_free_security, file);
+	// call_void_hook(file_free_security, file);
 
-	blob = file->f_security;
-	if (blob) {
-		file->f_security = NULL;
-		kmem_cache_free(lsm_file_cache, blob);
-	}
+	// blob = file->f_security;
+	// if (blob) {
+	// 	file->f_security = NULL;
+	// 	kmem_cache_free(lsm_file_cache, blob);
+	// }
+
+	return 0;
 }
 
 int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
@@ -1600,7 +1604,7 @@ void security_cred_free(struct cred *cred)
 	if (unlikely(cred->security == NULL))
 		return;
 
-	call_void_hook(cred_free, cred);
+	// call_void_hook(cred_free, cred);
 
 	kfree(cred->security);
 	cred->security = NULL;
@@ -1737,15 +1741,18 @@ int security_task_prlimit(const struct cred *cred, const struct cred *tcred,
 int security_task_setrlimit(struct task_struct *p, unsigned int resource,
 		struct rlimit *new_rlim)
 {
-	struct lsm_namespace *lsm_ns;
+	// struct lsm_namespace *lsm_ns;
 
-	if (p->nsproxy == NULL)
-		return 0;
+	// if (p->nsproxy == NULL)
+	// 	return 0;
 
-	lsm_ns = p->nsproxy->lsm_ns;
+	// lsm_ns = p->nsproxy->lsm_ns;
 
-	return call_int_hook_nolock(lsm_ns, task_setrlimit, 0, p, resource,
-								new_rlim);
+	// return call_int_hook_nolock(lsm_ns, task_setrlimit, 0, p, resource,
+	// 							new_rlim);
+	//
+
+	return 0;
 }
 
 int security_task_setscheduler(struct task_struct *p)
