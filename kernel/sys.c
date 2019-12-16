@@ -1548,15 +1548,17 @@ int do_prlimit(struct task_struct *tsk, unsigned int resource,
 	}
 
 	rlim = tsk->signal->rlim + resource;
-	task_lock(tsk->group_leader);
 	if (new_rlim) {
 		/* Keep the capable check against init_user_ns until
 		   cgroups can contain all limits */
 		if (new_rlim->rlim_max > rlim->rlim_max &&
 				!capable(CAP_SYS_RESOURCE))
 			retval = -EPERM;
-		if (!retval)
+		if (!retval) {
+			task_lock(tsk->group_leader);
 			retval = security_task_setrlimit(tsk, resource, new_rlim);
+			task_unlock(tsk->group_leader);
+		}
 	}
 	if (!retval) {
 		if (old_rlim)
@@ -1564,7 +1566,6 @@ int do_prlimit(struct task_struct *tsk, unsigned int resource,
 		if (new_rlim)
 			*rlim = *new_rlim;
 	}
-	task_unlock(tsk->group_leader);
 
 	/*
 	 * RLIMIT_CPU handling. Arm the posix CPU timer if the limit is not
