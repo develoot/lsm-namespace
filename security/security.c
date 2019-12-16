@@ -445,12 +445,13 @@ static int lsm_append(const char *new, char **result)
  * Each LSM has to register its hooks with the infrastructure.
  */
 void __init security_add_hooks(struct security_hook_list *hooks, int count,
-				char *lsm)
+				char *lsm, int type)
 {
 	int i;
 
 	for (i = 0; i < count; i++) {
 		hooks[i].lsm = lsm;
+		hooks[i].type = type;
 		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
 	}
 

@@ -15,6 +15,7 @@
 #define pr_fmt(fmt) "SafeSetID: " fmt
 
 #include <linux/lsm_hooks.h>
+#include <linux/lsm_namespace.h>
 #include <linux/module.h>
 #include <linux/ptrace.h>
 #include <linux/sched/task_stack.h>
@@ -157,7 +158,7 @@ static struct security_hook_list safesetid_security_hooks[] = {
 static int __init safesetid_security_init(void)
 {
 	security_add_hooks(safesetid_security_hooks,
-			   ARRAY_SIZE(safesetid_security_hooks), "safesetid");
+			   ARRAY_SIZE(safesetid_security_hooks), "safesetid", LSMNS_OTHER);
 
 	/* Report that SafeSetID successfully initialized */
 	safesetid_initialized = 1;
