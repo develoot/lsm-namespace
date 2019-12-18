@@ -658,8 +658,10 @@ static void __init lsm_early_task(struct task_struct *task)
 		struct task_struct *tsk = current;				\
 										\
 		task_lock(tsk);							\
-		if (tsk->nsproxy == NULL)					\
+		if (tsk->nsproxy == NULL) {					\
+			task_unlock(tsk);					\
 			break;							\
+		}								\
 		lsm_ns = tsk->nsproxy->lsm_ns;					\
 		task_unlock(tsk);						\
 										\
@@ -691,8 +693,10 @@ static void __init lsm_early_task(struct task_struct *task)
 		struct task_struct *tsk = current;				\
 										\
 		task_lock(tsk);							\
-		if (tsk->nsproxy == NULL)					\
+		if (tsk->nsproxy == NULL) {					\
+			task_unlock(tsk);					\
 			break;							\
+		}								\
 		lsm_ns = tsk->nsproxy->lsm_ns;					\
 		task_unlock(tsk);						\
 										\
