@@ -143,7 +143,7 @@ void __init lsmns_init(struct lsm_info **ordered_lsms)
 	struct lsm_info **lsm;
 	struct task_struct *tsk = current;
 
-	for (lsm = ordered_lsms; lsm; lsm++) {
+	for (lsm = ordered_lsms; *lsm; lsm++) {
 		if (!is_enabled(*lsm))
 			continue;
 
