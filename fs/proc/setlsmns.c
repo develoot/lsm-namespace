@@ -9,11 +9,12 @@
 
 #define BUFF_SIZE 1024
 
-static const enum { Lsmns_selinux, Lsmns_apparmor, Lsmns_tomoyo, Lsmns_err };
+static const enum { Lsmns_selinux, Lsmns_apparmor, Lsmns_tomoyo, Lsmns_other, Lsmns_err };
 
 const match_table_t tokens = { { Lsmns_selinux, "selinux" },
 			       { Lsmns_apparmor, "apparmor" },
 			       { Lsmns_tomoyo, "tomoyo" },
+			       { Lsmns_other, "other" },
 			       { Lsmns_err, NULL } };
 
 struct proc_dir_entry *proc_lsm;
@@ -60,6 +61,9 @@ int parse_lsmns_procfs(void)
 			break;
 		case Lsmns_tomoyo:
 			types |= LSMNS_TOMOYO;
+			break;
+		case Lsmns_other:
+			types |= LSMNS_OTHER;
 			break;
 		}
 	}
