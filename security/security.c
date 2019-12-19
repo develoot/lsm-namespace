@@ -679,7 +679,7 @@ static void __init lsm_early_task(struct task_struct *task)
 										\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) {	\
 			/* do not reject LSMNS_OTHER. this will be changed. */  \
-			if (!(P->type & LSM_NS->type || P->type & LSMNS_OTHER))	\
+			if (!((P->type & LSM_NS->type) || (P->type & LSMNS_OTHER)))	\
 				continue;					\
 			P->hook.FUNC(__VA_ARGS__);				\
 		}								\
@@ -702,7 +702,7 @@ static void __init lsm_early_task(struct task_struct *task)
 										\
 		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) {	\
 			/* do not reject LSMNS_OTHER. this will be changed. */  \
-			if (!(P->type & lsm_ns->type || P->type & LSMNS_OTHER))	\
+			if (!((P->type & lsm_ns->type) || (P->type & LSMNS_OTHER)))	\
 				continue;					\
 			RC = P->hook.FUNC(__VA_ARGS__);				\
 			if (RC != 0)						\
