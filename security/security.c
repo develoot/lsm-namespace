@@ -2170,7 +2170,25 @@ EXPORT_SYMBOL(security_req_classify_flow);
 
 void security_sock_graft(struct sock *sk, struct socket *parent)
 {
-	call_void_hook(sock_graft, sk, parent);
+	// call_void_hook(sock_graft, sk, parent);
+	struct lsm_namespace *lsm_ns;
+	struct security_hook_list *P;
+	struct task_struct *tsk = current;
+
+	task_lock(tsk);
+	if (tsk->nsproxy == NULL) {
+		task_unlock(tsk);
+		return;
+	}
+	lsm_ns = tsk->nsproxy->lsm_ns;
+	task_unlock(tsk);
+
+	hlist_for_each_entry(P, &security_hook_heads.sock_graft, list) {
+		/* do not reject LSMNS_OTHER. this will be changed. */
+		if (!(P->type & lsm_ns->type || P->type & LSMNS_OTHER))
+			continue;
+		P->hook.sock_graft(sk, parent);
+	}
 }
 EXPORT_SYMBOL(security_sock_graft);
 
